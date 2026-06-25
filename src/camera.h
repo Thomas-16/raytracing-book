@@ -1,6 +1,10 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#include <chrono>
+#include <iomanip>
+#include <string>
+
 #include "hittable.h"
 
 // Responsible for:
@@ -17,13 +21,28 @@ public:
     void render(const hittable &world)
     {
         initialize();
+        const auto start_time = std::chrono::steady_clock::now();
+        const auto show_progress = [&](int completed)
+        {
+            const double progress = static_cast<double>(completed) / image_height;
+            const int filled = static_cast<int>(40 * progress);
+            const double seconds = std::chrono::duration<double>(
+                                       std::chrono::steady_clock::now() - start_time)
+                                       .count();
+            std::clog << "\rRendering [" << std::string(filled, '=')
+                      << std::string(40 - filled, ' ') << "] "
+                      << std::setw(3) << static_cast<int>(100 * progress) << "%  "
+                      << "Elapsed: " << std::fixed << std::setprecision(1)
+                      << seconds << "s" << std::flush;
+        };
 
         std::cout << "P3\n"
                   << image_width << ' ' << image_height << "\n255\n";
 
+        show_progress(0);
+
         for (int j = 0; j < image_height; j++)
         {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; i++)
             {
                 color pixel_color(0, 0, 0);
@@ -34,9 +53,14 @@ public:
                 }
                 write_color(std::cout, pixel_color / samples_per_pixel);
             }
+
+            show_progress(j + 1);
         }
 
-        std::clog << "\rDone.                 \n";
+        const double seconds = std::chrono::duration<double>(
+                                   std::chrono::steady_clock::now() - start_time)
+                                   .count();
+        std::clog << "\nRender complete. Elapsed time: " << seconds << "s\n";
     }
 
 private:
