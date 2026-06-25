@@ -2,7 +2,8 @@
 #define SPHERE_H
 
 #include "hittable.h"
-#include "vec3.h"
+
+#include "raytracing.h"
 
 class sphere : public hittable
 {

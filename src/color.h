@@ -3,8 +3,6 @@
 
 #include "vec3.h"
 
-#include <iostream>
-
 // color is just an alias of vec3
 using color = vec3;
 
