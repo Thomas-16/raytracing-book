@@ -12,6 +12,7 @@ public:
     double aspect_ratio = 1.0;
     int image_width = 100;
     int samples_per_pixel = 10;
+    int max_bounces = 10;
 
     void render(const hittable &world)
     {
@@ -29,7 +30,7 @@ public:
                 for (int sample = 0; sample < samples_per_pixel; sample++)
                 {
                     ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, world);
+                    pixel_color += ray_color(r, max_bounces, world);
                 }
                 write_color(std::cout, pixel_color / samples_per_pixel);
             }
@@ -89,12 +90,18 @@ private:
         return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
-    color ray_color(const ray &r, const hittable &world) const
+    color ray_color(const ray &r, int bounces_left, const hittable &world) const
     {
+        // If we've exceeded the ray bounce limit, no more light is gathered
+        if (bounces_left <= 0)
+            return color(0, 0, 0);
+
         hit_record rec;
-        if (world.hit(r, interval(0, infinity), rec))
+        if (world.hit(r, interval(0.001, infinity), rec))
         {
-            return 0.5 * (rec.normal + color(1, 1, 1));
+            // If the ray hit something, calculate the direction it's reflected to and fire a new ray
+            vec3 new_direction = random_on_hemisphere(rec.normal);
+            return 0.5 * ray_color(ray(rec.p, new_direction), bounces_left - 1, world);
         }
 
         // A simple blue-to-white gradient depending on ray y coordinate
