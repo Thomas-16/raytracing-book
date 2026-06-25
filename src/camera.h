@@ -11,6 +11,7 @@ class camera
 public:
     double aspect_ratio = 1.0;
     int image_width = 100;
+    int samples_per_pixel = 10;
 
     void render(const hittable &world)
     {
@@ -24,12 +25,13 @@ public:
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; i++)
             {
-                vec3 pixel_center = pixel00_loc + (i * pixel_delta_u) + (j * pixel_delta_v);
-                vec3 ray_direction = pixel_center - center;
-                ray r(center, ray_direction);
-
-                color pixel_color = ray_color(r, world);
-                write_color(std::cout, pixel_color);
+                color pixel_color(0, 0, 0);
+                for (int sample = 0; sample < samples_per_pixel; sample++)
+                {
+                    ray r = get_ray(i, j);
+                    pixel_color += ray_color(r, world);
+                }
+                write_color(std::cout, pixel_color / samples_per_pixel);
             }
         }
 
@@ -67,6 +69,24 @@ private:
         // Calculate the position of the upperleft pixel
         vec3 viewport_upper_left = center - vec3(0, 0, focal_length) - viewport_u / 2 - viewport_v / 2;
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+    }
+
+    // Construct a camera ray originating from the origin and directed
+    // at a randomly sampled point around the pixel location i, j
+    ray get_ray(int i, int j) const
+    {
+        vec3 offset = sample_square();
+        vec3 pixel_sample = pixel00_loc + ((i + offset.x()) * pixel_delta_u) + ((j + offset.y()) * pixel_delta_v);
+
+        vec3 ray_origin = center;
+        vec3 ray_direction = pixel_sample - ray_origin;
+        return ray(ray_origin, ray_direction);
+    }
+
+    vec3 sample_square() const
+    {
+        // Returns the vector to a random point in the [-.5,-.5]-[+.5,+.5] unit square.
+        return vec3(random_double() - 0.5, random_double() - 0.5, 0);
     }
 
     color ray_color(const ray &r, const hittable &world) const
