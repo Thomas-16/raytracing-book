@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(raytracing src/main.cpp
     src/vec3.h
     src/color.h
-    src/ray.h)
+    src/ray.h
+    src/hittable.h
+    src/sphere.h)
 
 include_directories(src)
