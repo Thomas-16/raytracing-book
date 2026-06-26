@@ -128,7 +128,8 @@ private:
             return 0.5 * ray_color(ray(rec.p, new_direction), bounces_left - 1, world);
         }
 
-        // A simple blue-to-white gradient depending on ray y coordinate
+        // The ray is going into the sky
+        // A simple blue-to-white sky gradient depending on ray y coordinate
         vec3 unit_direction = unit_vector(r.direction());
         double a = 0.5 * (unit_direction.y() + 1.0);
         return (1.0 - a) * color(1.0, 1.0, 1.0) + a * color(0.5, 0.7, 1.0);
