@@ -124,7 +124,7 @@ private:
         if (world.hit(r, interval(0.001, infinity), rec))
         {
             // If the ray hit something, calculate the direction it's reflected to and fire a new ray
-            vec3 new_direction = random_on_hemisphere(rec.normal);
+            vec3 new_direction = rec.normal + random_unit_vector();
             return 0.5 * ray_color(ray(rec.p, new_direction), bounces_left - 1, world);
         }
 
