@@ -14,6 +14,7 @@ add_executable(raytracing src/main.cpp
     src/hittable_list.h
     src/raytracing.h
     src/interval.h
-    src/camera.h)
+    src/camera.h
+    src/material.h)
 
 include_directories(src)
