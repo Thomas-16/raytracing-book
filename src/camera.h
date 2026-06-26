@@ -19,6 +19,8 @@ public:
     int samples_per_pixel = 10;
     int max_bounces = 10;
 
+    double vfov = 90.0;
+
     void render(const hittable &world)
     {
         initialize();
@@ -81,7 +83,9 @@ private:
 
         // Determine viewport dimensions
         double focal_length = 1.0;
-        double viewport_height = 2.0;
+        double theta = degrees_to_radians(vfov);
+        double h = std::tan(theta / 2);
+        double viewport_height = 2 * h * focal_length;
         double viewport_width = viewport_height * (double(image_width) / image_height);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges
