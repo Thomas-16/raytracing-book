@@ -6,6 +6,7 @@
 #include <string>
 
 #include "hittable.h"
+#include "material.h"
 
 // Responsible for:
 // 1. Constructing and dispatching rays into the world
@@ -124,8 +125,11 @@ private:
         if (world.hit(r, interval(0.001, infinity), rec))
         {
             // If the ray hit something, calculate the direction it's reflected to and fire a new ray
-            vec3 new_direction = rec.normal + random_unit_vector();
-            return 0.5 * ray_color(ray(rec.p, new_direction), bounces_left - 1, world);
+            ray scattered;
+            color attenuation;
+            if (rec.mat->scatter(r, rec, attenuation, scattered))
+                return attenuation * ray_color(scattered, bounces_left - 1, world);
+            return color(0, 0, 0);
         }
 
         // The ray is going into the sky
