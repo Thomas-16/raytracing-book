@@ -12,7 +12,8 @@ int main()
 
     shared_ptr<material> material_ground = make_shared<lambertian>(color(0.8, 0.8, 0.0));
     shared_ptr<material> material_center = make_shared<lambertian>(color(0.1, 0.2, 0.5));
-    shared_ptr<material> material_left = make_shared<metal>(color(0.8, 0.8, 0.8), 0.3);
+    // Air bubble
+    shared_ptr<material> material_left = make_shared<dielectric>(1.00 / 1.33); // IR of air / IR of water
     shared_ptr<material> material_right = make_shared<metal>(color(0.8, 0.6, 0.2), 1.0);
 
     world.add(make_shared<sphere>(point3(0.0, -100.5, -1.0), 100.0, material_ground));

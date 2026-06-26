@@ -17,6 +17,7 @@ public:
     }
 };
 
+// Scatters rays in random directions following lambertian reflectance
 class lambertian : public material
 {
 public:
@@ -39,6 +40,8 @@ private:
     color albedo;
 };
 
+// Reflects light following the law of reflection
+// Has a fuzziness index that affects the reflected direction
 class metal : public material
 {
 public:
@@ -56,6 +59,39 @@ public:
 private:
     color albedo;
     double fuzz;
+};
+
+// A dielectric material sometimes refracts and sometimes reflects
+class dielectric : public material
+{
+public:
+    dielectric(double refraction_index) : refraction_index(refraction_index) {}
+
+    bool scatter(const ray &ray_in, const hit_record &rec, color &attenuation, ray &scattered) const override
+    {
+        attenuation = color(1.0, 1.0, 1.0); // Glass surface obsorbs nothing
+        double ri = rec.front_face ? (1.0 / refraction_index) : refraction_index;
+
+        vec3 unit_direction = unit_vector(ray_in.direction());
+        double cos_theta = std::fmin(dot(-unit_direction, rec.normal), 1.0);
+        double sin_theta = std::sqrt(1.0 - cos_theta * cos_theta);
+
+        bool cannot_refract = ri * sin_theta > 1.0;
+
+        vec3 ray_direction;
+        if (cannot_refract)
+            ray_direction = reflect(unit_direction, rec.normal);
+        else
+            ray_direction = refract(unit_direction, rec.normal, ri);
+
+        scattered = ray(rec.p, ray_direction);
+        return true;
+    }
+
+private:
+    // Refractive index in vacuum or air, or the ratio of the material's refractive index over
+    // the refractive index of the enclosing media
+    double refraction_index;
 };
 
 #endif
